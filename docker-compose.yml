@@ -1,0 +1,16 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Api/Dockerfile
+    ports:
+      - "5242:5242"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+  jobapplying-frontend:
+    build:
+      context: ./jobApplying-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    

@@ -1,6 +1,7 @@
 //XOX oyunu Barisla Oynamak icin
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Confetti from "react-confetti";
 import "./style.css";
 
 function Square({ value, onSquareClick }) {
@@ -11,20 +12,53 @@ function Square({ value, onSquareClick }) {
   );
 }
 
-export default function Board() {
+function XoxOyunu() {
   //X yada O oldugunu bulma
   const [xIsNext, setIsNext] = useState(true);
   const [squares, setSquares] = useState(Array(9).fill(null));
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
 
   //Kazanani bulma
   const winner = calculateWinner(squares);
   let status;
 
+  // if (winner) {
+  //   <div style={{ color: "white" }}>{status}</div>
+  //   status = "Winner: " + winner;
+
+  // } else {
+  //   status = "Next player: " + (xIsNext ? "X" : "O");
+  // }
+
   if (winner) {
-    status = "Winner: " + winner;
+    status = "<span style='color: white;'>Winner: " + winner + "</span>";
   } else {
-    status = "Next player: " + (xIsNext ? "X" : "O");
+    status =
+      "<span style='color:white;'> Next player: " +
+      (xIsNext ? "X" : "O") +
+      "</span>";
   }
+
+  // trigerred Confetti
+  useEffect(() => {
+    if (winner) {
+      setShowConfetti(true);
+
+
+      const timeout = setTimeout(() => {
+        setShowConfetti(false);
+        setSquares(Array(9).fill(null)); // Clean Game area
+        setIsNext(true); // Reset to X's turn
+      }, 6000); 
+    //  setShowConfetti(true);
+     // setTimeout(() => setShowConfetti(false), 5000); // 3 saniye sonra kapat
+     return ()=>clearTimeout(timeout);
+    }
+  }, [winner]);
 
   function handleClick(i) {
     //daha once secildiyse veya kaznan varsa  islem yapmiyoruz.
@@ -33,12 +67,13 @@ export default function Board() {
     }
     //X mi O mu olduguna karar veriyoruz. true X false Y
     const nextSquares = squares.slice();
-
-    if (xIsNext) {
-      nextSquares[i] = "X";
-    } else {
-      nextSquares[i] = "O";
-    }
+    nextSquares[i]= xIsNext ? "X" : "O";
+   
+    // if (xIsNext) {
+    //   nextSquares[i] = "X";
+    // } else {
+    //   nextSquares[i] = "O";
+    // }
     setSquares(nextSquares);
     //true ise false , false ise true yapiyoruz.
     setIsNext(!xIsNext);
@@ -46,7 +81,11 @@ export default function Board() {
 
   return (
     <>
-      <div className="status">{status}</div>
+    {showConfetti && (
+        <Confetti width={windowSize.width} height={windowSize.height} />
+      )}
+      <div dangerouslySetInnerHTML={{ __html: status }} />
+      {/* <div className="status">{status}</div> */}
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -86,3 +125,4 @@ function calculateWinner(squares) {
   }
   return null;
 }
+export default XoxOyunu;
